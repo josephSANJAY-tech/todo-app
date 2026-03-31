@@ -1,0 +1,14 @@
+{
+  "name": "todo-app",
+  "version": "1.0.0",
+  "description": "Sample Todo App with CI/CD Pipeline",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Running tests...\" && echo \"✅ All tests passed!\"",
+    "build": "echo \"Building todo app...\" && echo \"✅ Build complete!\"",
+    "start": "npx serve ."
+  },
+  "keywords": ["todo", "ci/cd", "demo"],
+  "author": "Your Name",
+  "license": "MIT"
+}

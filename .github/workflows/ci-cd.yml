@@ -2,47 +2,32 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, master, develop ]
-  pull_request:
     branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  # CI Job: Build and Test
-  ci:
-    name: Continuous Integration
+  build:
     runs-on: ubuntu-latest
     
     steps:
-    - name: 📥 Checkout code
+    - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: 🔧 Setup Node.js
+    - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        cache: 'npm'
     
-    - name: 📦 Install dependencies
-      run: npm ci
+    - name: Install dependencies
+      run: npm install
     
-    - name: 🧪 Run tests
+    - name: Run tests
       run: npm test
-      continue-on-error: true
     
-    - name: 🏗️ Build application
+    - name: Build application
       run: npm run build
     
-    - name: 📊 Validate HTML
-      run: |
-        echo "Validating HTML files..."
-        if grep -l "Todo App" index.html; then
-          echo "✅ HTML validation passed"
-        else
-          echo "⚠️ HTML validation warning"
-        fi
-    
-    - name: 🎲 Simulate random result
+    - name: Simulate random result
       run: |
         RANDOM_NUM=$((RANDOM % 5))
         if [ $RANDOM_NUM -eq 0 ]; then
@@ -50,54 +35,4 @@ jobs:
           exit 1
         else
           echo "✅ Pipeline succeeded"
-        fi
-    
-    - name: 📝 Upload build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: todo-app-build
-        path: .
-        if-no-files-found: warn
-
-  # CD Job: Deploy (only on main branch success)
-  cd:
-    name: Continuous Deployment
-    needs: ci
-    if: github.ref == 'refs/heads/main' && success()
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: 📥 Download build artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: todo-app-build
-    
-    - name: 🚀 Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v4
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./
-        publish_branch: gh-pages
-        force_orphan: true
-    
-    - name: 📢 Deployment notification
-      run: |
-        echo "✅ Deployment complete!"
-        echo "🌐 App available at: https://${{ github.repository_owner }}.github.io/todo-app/"
-
-  # Notification Job
-  notify:
-    name: Notification
-    needs: [ci, cd]
-    if: always()
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: 📧 Send notification
-      run: |
-        echo "Pipeline Status: ${{ needs.ci.result }}"
-        if [ "${{ needs.ci.result }}" == "success" ]; then
-          echo "✅ Pipeline completed successfully!"
-        else
-          echo "⚠️ Pipeline had issues"
         fi
